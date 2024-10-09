@@ -13,7 +13,7 @@ text
 # 10-08-2024
 ## Assignment 1
 Worked on assignment 1 today. My major sticking points were
-- numpy wanting to set the dtype as float32, needed to use .astype
+- numpy wanting to set the dtype as float32, needed to use `.astype`
 - Code snippet from scipy had some things I couldn't understand why they were there. mostly this in the sin function
 `2. * np.pi *`
 
