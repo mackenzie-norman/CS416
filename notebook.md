@@ -52,7 +52,7 @@ Started work today on the tone control project but ran into problems with the FF
 
 # 10-31-2024
 ## Continuing work on the tone control project ( thinking about term project )
-Today I got my fft mostly working, still want to add a sine for some other sort of windowing function to it but thats okay, also got my filters set up so feeling pretty good. Need to spend some time doing research on the filters so I know what I'm doing since right now I am going off a stackoverflow post and I think it is too abstract.
+Today I got my fft mostly working, still want to add a sine for some other sort of windowing function to it but thats okay, also got my filters set up so feeling pretty good. Need to spend some time doing research on the filters so I know what I'm doing since right now I am going off a [blog post](https://swharden.com/blog/2020-09-23-signal-filtering-in-python/) and I think it is too abstract.
 Got the power ratios down too so now I just need to scale and recombine to output. 
 
 I think for my term project I am interested in building some sort of vocoder or something similar. Not sure what yet but that seems the most interesting to me.
