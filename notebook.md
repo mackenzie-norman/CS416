@@ -40,5 +40,20 @@ Finished watching all the videos ,
 wrote a [jupyter notebook](code/messing_with_notes.ipynb) trying to generate all notes per octave starting from a base `fs`  I think I want to play with the FIR filter too if I have time. Also interested in making the different notes sound smoother from one to the other. 
 Added some code in the messing with notes to sort of let me use the top of my keyboard to play notes. I need to figure out how to make it play while the key is being held down but it is fun for now
 
+---
+--- 
 
+# 10-29-2024
+## Starting work on the tone control project
+Started work today on the tone control project but ran into problems with the FFT element of it. Spent some time playing with it but think I will need to do more research into scipy.fft to figure out where I am going wrong
+
+---
+--- 
+
+# 10-31-2024
+## Continuing work on the tone control project ( thinking about term project )
+Today I got my fft mostly working, still want to add a sine for some other sort of windowing function to it but thats okay, also got my filters set up so feeling pretty good. Need to spend some time doing research on the filters so I know what I'm doing since right now I am going off a stackoverflow post and I think it is too abstract.
+Got the power ratios down too so now I just need to scale and recombine to output. 
+
+I think for my term project I am interested in building some sort of vocoder or something similar. Not sure what yet but that seems the most interesting to me.
 ---
