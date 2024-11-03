@@ -57,3 +57,14 @@ Got the power ratios down too so now I just need to scale and recombine to outpu
 
 I think for my term project I am interested in building some sort of vocoder or something similar. Not sure what yet but that seems the most interesting to me.
 ---
+
+--- 
+
+# 11-1&2-2024
+## Continuing work on the tone control project 
+
+Using the repo [tone.py](https://github.com/pdx-cs-sound/tone-control/blob/main/tone.py) I am getting closer. I have my filter working using the state and it sounds good. Now trying to figure out scaling. Hard to tell if I am doing it right or not...
+Goal is to use fft at each window I am filtering and take values, find min, find x to make all other values,equal to min
+use that as volume scale each filtered window
+
+---
