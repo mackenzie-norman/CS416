@@ -1,4 +1,4 @@
-from scipy import signal
+from scipy import signal,io
 from scipy.fft import fft, fftfreq
 import numpy as np
 import sounddevice as sd
@@ -55,6 +55,11 @@ def play(rate, wav):
 def do_filter( f, channels):
     return signal.lfilter(f, [1.], channels)
 
+def write_wav(filename, rate, data):
+    assert data.dtype == np.float64
+    #data *= 32767
+    data = data.astype(np.int16)
+    io.wavfile.write(filename, rate, data)
 import sounddevice
 from scipy.io.wavfile import write, read
 #ft = 'ba'
@@ -76,45 +81,51 @@ def main():
     wav = read("./code/sounds/gc.wav")
     global sample_rate
     sample_rate = wav[0]
-    wav = wav[1][:num_secs* sample_rate]
+    wav = wav[1]
+    # [:num_secs* sample_rate]
     wav = wav.astype(np.float64)
     low_pass = 300
     high_pass = 2000
-    gain = 1
-
+    gain = 0.5
+    #make our filters
     filter_bass = make_filter(low_pass, 'lowpass')
     filter_mid = make_filter((low_pass,high_pass), 'bandpass')
     filter_treble = make_filter(high_pass, 'highpass')
+    #get intial values
     bass_zi  = signal.lfilter_zi(filter_bass,1)
     mid_zi  = signal.lfilter_zi(filter_mid,1)
     treble_zi  = signal.lfilter_zi(filter_treble,1)
 
-    #split channels into n bins based on len of filter
+    #split channels into n bins 
+    w_size = 1024
     n_bins = len(filter_bass)
+    n_bins = int(len(wav)/w_size)
     sub_channels = np.array_split(wav,n_bins )
+    #all our arrays, it might be smarter to sum them earlier and keep one final array
     bass_final = np.array([])
     mid_final = np.array([])
     treble_final = np.array([])
     for sub_channel in sub_channels:
-
+        window = signal.windows.cosine(len(sub_channel)) 
+        sub_channel = sub_channel * window
         fft_values =  np.absolute(fft(sub_channel))
 
-        freq = [i for i, f in enumerate(fftfreq(len(sub_channel), 1/sample_rate)) if f > 0]
-        fft_values = [fft_values[f]  for i,f in enumerate(freq) ]
-
+        freq = [f for i, f in enumerate(fftfreq(len(sub_channel), 1/sample_rate)) if f > 0]
+        fft_values = [fft_values[i]  for i,f in enumerate(freq) ]
+        
+        #return(0)
         low_bins = [i for i,f in enumerate(freq) if f < low_pass and f > 0]
-        low_power = np.average([fft_values[i] for i in low_bins])
+        low_power = np.mean([fft_values[i] for i in low_bins])
         mid_bins = [i for i,f in enumerate(freq) if f > low_pass and f < high_pass]
-        mid_power = np.average([fft_values[i] for i in mid_bins])
+        mid_power = np.mean([fft_values[i] for i in mid_bins])
 
         high_bins = [i for i,f in enumerate(freq) if f > high_pass]
-        high_power = np.average([fft_values[i] for i in high_bins])
+        high_power = np.mean([fft_values[i] for i in high_bins])
         min_power = min(low_power, mid_power, high_power)
         low_ratio = min_power / low_power  
         mid_ratio = min_power / mid_power  
         high_ratio = min_power / high_power  
-        high_ratio = 1
-        print(low_ratio,mid_ratio,high_ratio)
+        #high_ratio = 1
         bass_level = knob(5 *low_ratio)
         fr, bass_zi = do_filter_window_wise(filter_bass, sub_channel, bass_zi)
         bass_final = np.append(bass_final, fr)
@@ -130,5 +141,6 @@ def main():
     filtered = np.array([bass_final,mid_final,treble_final])
 
     result = gain * np.sum(filtered, axis=0)
-    play(sample_rate, result)
+    play(sample_rate,result)
+    write_wav("./code/sounds/test_eq.wav", sample_rate, result)
 main()

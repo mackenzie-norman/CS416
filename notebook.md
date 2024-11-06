@@ -68,3 +68,11 @@ Goal is to use fft at each window I am filtering and take values, find min, find
 use that as volume scale each filtered window
 
 ---
+--- 
+
+# 11-5-2024
+## Continuing work on the tone control project 
+
+tried switching average for mean to get rid of nan
+As it turns out I had an error in my code where I was storing array indices instead of actual frequencies
+---
