@@ -56,6 +56,7 @@ Today I got my fft mostly working, still want to add a sine for some other sort 
 Got the power ratios down too so now I just need to scale and recombine to output. 
 
 I think for my term project I am interested in building some sort of vocoder or something similar. Not sure what yet but that seems the most interesting to me.
+
 ---
 
 --- 
@@ -75,4 +76,14 @@ use that as volume scale each filtered window
 
 tried switching average for mean to get rid of nan
 As it turns out I had an error in my code where I was storing array indices instead of actual frequencies
+
+
+Pre
+![img](164814_old.png)
+Post
+![img](164814_new.png)
+
+It looks like he have more work to do.. I am assuming we want the new one to look like a wall? or at least similar. I can see I am bring the low down alright... Besides the extreme low. But the extreme high might need to be turned up? Or it is possible there are no freqs at that so even my attempts at scaling aren't helping
+
+
 ---
