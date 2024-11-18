@@ -85,5 +85,20 @@ Post
 
 It looks like he have more work to do.. I am assuming we want the new one to look like a wall? or at least similar. I can see I am bring the low down alright... Besides the extreme low. But the extreme high might need to be turned up? Or it is possible there are no freqs at that so even my attempts at scaling aren't helping
 
+---
+--- 
+
+# 11-5-2024
+## Messing with rhosy code and trying to get minilouge esque display to work
+playing around a lot with matplotlib in trying to get a display of the wave to the synth is generating to show ala korg minilouge. I love the screen on the minilouge. 
+
+Trials:
+using anim function. 
+needs to call flush which causes latency. either the input loop needs changing or need to find a better way to do this. 
+
+Think I am leaning towards blitting. Ideally would like an object you can add to your soundevice.output and then display the sound as it is coming.
+
+Seems like threading will be the main problem here. 
+
 
 ---
