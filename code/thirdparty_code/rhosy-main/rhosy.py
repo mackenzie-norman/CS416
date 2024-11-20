@@ -306,7 +306,9 @@ def process_midi_event():
     global out_keys, out_osc
 
     # Block until a MIDI message is received.
-    mesg = controller.receive()
+    mesg = controller.receive(block=False)
+    if(mesg is None):
+        return True
 
     # Select what to do based on message type.
     mesg_type = mesg.type
@@ -375,7 +377,7 @@ plt.pause(1)
 is_processing = True
 while is_processing:
     is_processing = process_midi_event()
-    fig.canvas.flush_events() 
+    #fig.canvas.flush_events() 
     #plt.pause(0.3)
     #animate(16)
     pass

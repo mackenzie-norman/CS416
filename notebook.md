@@ -88,7 +88,7 @@ It looks like he have more work to do.. I am assuming we want the new one to loo
 ---
 --- 
 
-# 11-5-2024
+# 11-17-2024
 ## Messing with rhosy code and trying to get minilouge esque display to work
 playing around a lot with matplotlib in trying to get a display of the wave to the synth is generating to show ala korg minilouge. I love the screen on the minilouge. 
 
@@ -99,6 +99,19 @@ needs to call flush which causes latency. either the input loop needs changing o
 Think I am leaning towards blitting. Ideally would like an object you can add to your soundevice.output and then display the sound as it is coming.
 
 Seems like threading will be the main problem here. 
+
+
+---
+--- 
+
+# 11-19-2024
+## Completely refactored 
+
+Took out all the code from rhosy and dragged it into classes, the classes are lame but now I can start playing with wave generators more.
+
+using a lot of FP here, so taking the 3 base waves I got from misy.py (link) and applying other function to combine/reduce or trying at chords.
+
+right now I am using the ratios described [here](https://music.stackexchange.com/questions/88572/how-are-chord-ratios-developed-exactly) which are 1.000000000 : 1.25992105 : 1.498307077. so I take the function and return a function that takes the same arguments but sums them by this ratio
 
 
 ---
