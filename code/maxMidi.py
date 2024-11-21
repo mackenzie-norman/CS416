@@ -149,7 +149,6 @@ class Midi:
 
         self.programs = [sine_samples, saw_samples, square_samples,  compose_waves(sine_samples, square_samples), compose_waves(saw_samples, square_samples), compose_waves(sine_samples, saw_samples)]
         self.programs += [compose_waves(self.programs[-1], self.programs[-2])]
-        self.programs += [chord(sine_samples), chord(square_samples), chord(saw_samples)]
         self.prev_osc = sine_samples 
         self.oscillator = sine_samples
 
@@ -214,11 +213,10 @@ class Midi:
                     self.note_release_time = (0.020 * 127) * (mesg.value /127)
             elif mesg.control == 53:
                 
-                self.prev_osc = self.oscillator
                 if mesg.value != 0:
-                    self.oscillator = chord(self.oscillator)
+                    self.set_oscillator(chord(self.oscillator))
                 else:
-                    self.oscillator = self.prev_osc
+                    self.set_oscillator(self.prev_osc)
             elif mesg.control == 22:
                 self.plot_osc()
             else:
@@ -228,18 +226,23 @@ class Midi:
             pitch = round(mesg.pitch / 127, 2)
             print('pitchwheel', mesg.pitch, pitch)
         elif mesg.type == 'program_change':
-            self.prev_osc = self.oscillator
             self.oscillator = self.programs[mesg.program % len(self.programs )]
+            self.set_oscillator(self.programs[mesg.program % len(self.programs )])
         else:
             print('unknown MIDI message', mesg)
         return True
-    #I THINK ENCAPSULATION IS FOR COWARDS
+
     def get_out_keys(self): return self.out_keys
+
     def plot_osc(self): 
         #goal is to show a plot of our waveform
         
         plt.plot(self.oscillator(sample_times(self.base_freq) ,self.base_freq))
         plt.show()
+    
+    def set_oscillator(self, new_osc):
+        self.prev_osc = self.oscillator
+        self.oscillator = new_osc
 
 #small helper function
 def sample_times(frame_count):
@@ -265,18 +268,18 @@ def output_callback(out_data, frame_count, time_info, status):
     # Start with silence and maybe work up.
     samples = np.zeros(frame_count, dtype=np.float32)
     # If keys are pressed, generate sounds.
-    if synth.out_keys:
+    if synth.get_out_keys():
         # Time point in seconds for each sample.
         t = sample_times(frame_count)
 
         # Set of keys that need playing.
-        on_keys = list(synth.out_keys.keys())
+        on_keys = list(synth.get_out_keys().keys())
         # Set of keys that need deleting.
         del_keys = set()
         # Generate the samples for each key and add them
         # into the mix.
         for key in on_keys:
-            note = synth.out_keys[key]
+            note = synth.get_out_keys()[key]
             note_samples = note.samples(t)
             if note_samples is None:
                 del_keys.add(key)
@@ -289,11 +292,11 @@ def output_callback(out_data, frame_count, time_info, status):
 
     # Adjust the gain so that each key gets louder up to
     # some maximum.  If necessary, scale to avoid clipping.
-    nkeys = len(synth.out_keys)
+    nkeys = len(synth.get_out_keys())
     if nkeys <= 8:
         samples *= 1.0 / 8.0
     else:
-        samples *= 1.0 / len(synth.out_keys)
+        samples *= 1.0 / len(synth.get_out_keys())
 
     # Reshape to have an array of 1 sample for each frame.
     # Must write into the existing array rather than
