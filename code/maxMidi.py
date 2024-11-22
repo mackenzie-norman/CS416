@@ -198,14 +198,7 @@ class Midi:
             if mesg.control == self.stop_values:
                 print('stop')
                 return False
-            # Change output waveform.
-            #
-            # XXX Hard-wired for "fast-forward" and "reverse"
-            # keys on Oxygen8. Hard-coded for exactly two possible
-            # waveforms.
-            elif mesg.control == 21 :
-                print('program change')
-                out_osc = (out_osc + 1) % 4
+            
             # Unknown control changes are logged and ignored.
             elif mesg.control == self.attack_knob:
                     self.note_attack_time = (0.020 * 127) * (mesg.value /127)
@@ -284,6 +277,9 @@ def output_callback(out_data, frame_count, time_info, status):
             if note_samples is None:
                 del_keys.add(key)
                 continue
+            else:
+                #need to find better scaling to stop clipping
+                note_samples *= 0.125
             samples += note_samples
 
         # Close the deleted keys.
