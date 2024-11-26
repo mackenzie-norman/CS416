@@ -136,6 +136,7 @@ def make_note(key, n=1):
     b = beat_samples * n
     cycles = 2 * np.pi * f * b / samplerate
     t = np.linspace(0, cycles, b)
+    #maybe try np.sign with a square wave but probably just use wavgen code from rhosy/misy
     wav = np.sin(t)
 
     # simple envelope
@@ -150,8 +151,9 @@ def make_note(key, n=1):
     # Combine all sections
     envelope = np.concatenate((ramp_up, mid_section, ramp_down))
     #give it an envelope
-    
-    return wav * envelope
+    wav *= envelope
+
+    return wav
 
 # Play the given sound waveform using `sounddevice`.
 def play(sound):
