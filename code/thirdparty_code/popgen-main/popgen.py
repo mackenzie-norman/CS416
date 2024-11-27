@@ -59,6 +59,19 @@ def parse_db(d):
     if v > 0:
         raise ValueError
     return 10**(v / 20)
+#t needs to be a lin space I thinks
+def sine_samples(t, f):
+    return np.sin(2 * np.pi * f * t)
+
+# Return a rising sawtooth wave at frequency f over the
+# given sample times t.
+def saw_samples(t, f):
+    return (f * t) % 2.0 - 1.0
+
+# Return a square wave at frequency f over the
+# given sample times t.
+def square_samples(t, f):
+    return np.sign((f * t) % 2.0 - 1.0)
 
 ap = argparse.ArgumentParser()
 ap.add_argument('--bpm', type=int, default=90)
@@ -130,14 +143,15 @@ def pick_notes(chord_root, n=4):
 # note duration, return a sine wave for that note.
 attack = 0.020
 release = 0.020
-def make_note(key, n=1):
+def make_note(key, n=1, gen_func = sine_samples):
     
     f = 440 * 2 ** ((key - 69) / 12)
     b = beat_samples * n
-    cycles = 2 * np.pi * f * b / samplerate
+    cycles =   b / samplerate
     t = np.linspace(0, cycles, b)
+
     #maybe try np.sign with a square wave but probably just use wavgen code from rhosy/misy
-    wav = np.sin(t)
+    wav = gen_func(t,f)
 
     # simple envelope
     attack_length = int(b * (attack ))
@@ -200,7 +214,7 @@ if args.test:
 sound = np.array([], dtype=np.float64)
 for c in chord_loop:
     notes = pick_notes(c - 1)
-    melody = np.concatenate(list(make_note(i + melody_root) for i in notes))
+    melody = np.concatenate(list(make_note(i + melody_root, gen_func=square_samples) for i in notes))
 
     bass_note = note_to_key_offset(c - 1)
     bass = make_note(bass_note + bass_root, n=4)
