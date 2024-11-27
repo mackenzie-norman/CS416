@@ -3,7 +3,7 @@
 #
 # This script puts out four bars in the "Axis Progression" chord loop,
 # with a melody and bass line.
-
+import matplotlib.pyplot as plt
 import argparse, random, re, wave
 import numpy as np
 import sounddevice as sd
@@ -72,7 +72,18 @@ def saw_samples(t, f):
 # given sample times t.
 def square_samples(t, f):
     return np.sign((f * t) % 2.0 - 1.0)
+def noise_sample(t,f):
 
+    if f % 2 == 0:
+        duration = int(0.1 * len(t))
+        noise_part = np.linspace(0, 1, duration, endpoint=False)
+        noise_part = square_samples(sine_samples(saw_samples(noise_part,440), 440), 440)
+    else:
+        duration = int(0.1 * len(t))
+        noise_part = np.linspace(0, 1, duration, endpoint=False)
+        noise_part = np.random.rand(duration)
+    t[:duration] = noise_part
+    return t
 ap = argparse.ArgumentParser()
 ap.add_argument('--bpm', type=int, default=90)
 ap.add_argument('--samplerate', type=int, default=48_000)
@@ -146,7 +157,7 @@ release = 0.020
 def make_note(key, n=1, gen_func = sine_samples):
     
     f = 440 * 2 ** ((key - 69) / 12)
-    b = beat_samples * n
+    b = int(beat_samples * n)
     cycles =   b / samplerate
     t = np.linspace(0, cycles, b)
 
@@ -212,18 +223,32 @@ if args.test:
     
 # Stitch together a waveform for the desired music.
 sound = np.array([], dtype=np.float64)
+plot_sounds = False
 for c in chord_loop:
-    notes = pick_notes(c - 1)
-    melody = np.concatenate(list(make_note(i + melody_root, gen_func=square_samples) for i in notes))
+    #this is where we make our notes
+    notes_per_measure = 16
+    notes = pick_notes(c - 1, n = notes_per_measure)
+    melody = np.concatenate(list(make_note(i + melody_root, n = notes_per_measure / len(notes), gen_func=sine_samples ) for i in notes))
 
     bass_note = note_to_key_offset(c - 1)
-    bass = make_note(bass_note + bass_root, n=4)
+    bass = make_note(bass_note + bass_root, n=notes_per_measure)
+    
+    percussion_notes = [i for i in range(16)]
+    percussion = np.concatenate(list(make_note(i, n = notes_per_measure / len(percussion_notes), gen_func=noise_sample ) for i in percussion_notes ) ) 
 
     melody_gain = args.balance
     bass_gain = 1 - melody_gain
+    percussion_gain =  0.1 
+    if plot_sounds:
+        max_plot = int(samplerate * 0.2)
+        figs,axs = plt.subplots(3)
+        axs[0].plot(percussion[:max_plot])
+        axs[1].plot(melody[:max_plot])
+        axs[2].plot(bass[:max_plot])
+        plt.show()
+    sound = np.append(sound, (melody_gain * melody) + (bass_gain * bass) + (percussion * percussion_gain))
 
-    sound = np.append(sound, melody_gain * melody + bass_gain * bass)
-
+sound *= 0.1
 # Save or play the generated "music".
 if args.output:
     output = wave.open(args.output, "wb")
