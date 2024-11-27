@@ -129,7 +129,7 @@ melody_root = args.root
 bass_root = melody_root - 12 * args.bass_octave
 
 # Root note offset for each chord in scale tones — one-based.
-chord_loop = [8, 5, 6, 4]
+chord_loop = [1, 5, 6, 4]
 
 position = 0
 def pick_notes(chord_root, n=4):
@@ -226,8 +226,8 @@ sound = np.array([], dtype=np.float64)
 plot_sounds = False
 for c in chord_loop:
     #this is where we make our notes
-    notes_per_measure = 16
-    notes = pick_notes(c - 1, n = notes_per_measure)
+    notes_per_measure = 4
+    notes = pick_notes(c - 1, n = notes_per_measure * 2)
     melody = np.concatenate(list(make_note(i + melody_root, n = notes_per_measure / len(notes), gen_func=sine_samples ) for i in notes))
 
     bass_note = note_to_key_offset(c - 1)
