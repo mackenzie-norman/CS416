@@ -134,6 +134,13 @@ def chord(func):
         end = func(t,f) + func(t , f* 1.25992105 ) + func(t, f * 1.498307077)
         return end
     return funct
+def noise_sample(t,f):
+
+    duration = int(0.1 * len(t))
+    noise_part = np.linspace(0, 1, duration, endpoint=False)
+    noise_part = square_samples(sine_samples(saw_samples(noise_part,440), 440), 440)
+    t[:duration] = noise_part
+    return t
 class Midi:
     #
     
@@ -149,6 +156,7 @@ class Midi:
 
         self.programs = [sine_samples, saw_samples, square_samples,  compose_waves(sine_samples, square_samples), compose_waves(saw_samples, square_samples), compose_waves(sine_samples, saw_samples)]
         self.programs += [compose_waves(self.programs[-1], self.programs[-2])]
+        self.programs += [noise_sample]
         self.prev_osc = sine_samples 
         self.oscillator = sine_samples
 
@@ -219,6 +227,7 @@ class Midi:
             pitch = round(mesg.pitch / 127, 2)
             print('pitchwheel', mesg.pitch, pitch)
         elif mesg.type == 'program_change':
+            print(mesg.program % len(self.programs))
             self.oscillator = self.programs[mesg.program % len(self.programs )]
             self.set_oscillator(self.programs[mesg.program % len(self.programs )])
         else:

@@ -17,6 +17,34 @@ note_names = { s : i for i, s in enumerate(names) }
 # "D" or "Eb[5]". Default is octave 4 if no octave is
 # specified.
 note_name_re = re.compile(r"([A-G]b?)(\[([0-8])\])?")
+#t needs to be a lin space I thinks
+def sine_samples(t, f):
+    return np.sin(2 * np.pi * f * t)
+
+# Return a rising sawtooth wave at frequency f over the
+# given sample times t.
+def saw_samples(t, f):
+    return (f * t) % 2.0 - 1.0
+
+# Return a square wave at frequency f over the
+# given sample times t.
+def square_samples(t, f):
+    return np.sign((f * t) % 2.0 - 1.0)
+waves = [sine_samples, saw_samples,square_samples]
+#Taken from geeks for geeks https://www.geeksforgeeks.org/how-to-pass-a-list-as-a-command-line-argument-with-argparse/
+def parse_bool(arg):
+    if "f" in arg:
+        return False
+    else: return True
+def parse_list_of_ints(arg):
+    return list(map(int, arg.split(',')))
+def parse_note_thing(arg):
+    tmp_list = list((map(int, arg.split(','))))
+    pairs =[]
+    for i in range(0,len(tmp_list),2):
+        pairs += [[tmp_list[i], waves[tmp_list[i+1]]] ]
+    return pairs
+    
 def parse_note(s):
     m = note_name_re.fullmatch(s)
     if m is None:
@@ -59,25 +87,13 @@ def parse_db(d):
     if v > 0:
         raise ValueError
     return 10**(v / 20)
-#t needs to be a lin space I thinks
-def sine_samples(t, f):
-    return np.sin(2 * np.pi * f * t)
 
-# Return a rising sawtooth wave at frequency f over the
-# given sample times t.
-def saw_samples(t, f):
-    return (f * t) % 2.0 - 1.0
-
-# Return a square wave at frequency f over the
-# given sample times t.
-def square_samples(t, f):
-    return np.sign((f * t) % 2.0 - 1.0)
 def noise_sample(t,f):
 
-    if f % 2 == 0:
+    if f % 2 == 3:
         duration = int(0.1 * len(t))
         noise_part = np.linspace(0, 1, duration, endpoint=False)
-        noise_part = square_samples(sine_samples(saw_samples(noise_part,440), 440), 440)
+        noise_part = square_samples(sine_samples(saw_samples(noise_part,110), 110), 110)
     else:
         duration = int(0.1 * len(t))
         noise_part = np.linspace(0, 1, duration, endpoint=False)
@@ -93,6 +109,11 @@ ap.add_argument('--balance', type=parse_linear_knob, default="5")
 ap.add_argument('--gain', type=parse_db, default="-3")
 ap.add_argument('--output')
 ap.add_argument("--test", action="store_true", help=argparse.SUPPRESS)
+ap.add_argument("--plot", type=parse_bool, default=False)
+#MN add new chord progression
+ap.add_argument("--chord-loop", type=parse_list_of_ints, default="1,5,6,4")
+ap.add_argument("--loop", type= int, default=0)
+ap.add_argument("--samples-notes", type=parse_note_thing, default= "1,0,1,0,1,0,1,0")
 args = ap.parse_args()
 
 # Tempo in beats per minute.
@@ -129,10 +150,14 @@ melody_root = args.root
 bass_root = melody_root - 12 * args.bass_octave
 
 # Root note offset for each chord in scale tones — one-based.
-chord_loop = [1, 5, 6, 4]
+chord_loop = args.chord_loop
+plot_sounds = args.plot
+for i in range(args.loop):
+    chord_loop += chord_loop
 
 position = 0
 def pick_notes(chord_root, n=4):
+    max = n/2 
     global position
     p = position
 
@@ -146,7 +171,7 @@ def pick_notes(chord_root, n=4):
             p = p + 1
         else:
             p = p - 1
-
+        #p = p % max
     position = p
     return notes
 
@@ -222,20 +247,41 @@ if args.test:
     exit(0)
     
 # Stitch together a waveform for the desired music.
+note_frac_list = args.samples_notes
 sound = np.array([], dtype=np.float64)
-plot_sounds = False
 for c in chord_loop:
     #this is where we make our notes
     notes_per_measure = 4
-    notes = pick_notes(c - 1, n = notes_per_measure * 2)
-    melody = np.concatenate(list(make_note(i + melody_root, n = notes_per_measure / len(notes), gen_func=sine_samples ) for i in notes))
+    #note_frac_list = [[2, sine_samples],[1, square_samples],[30,sine_samples],[7, saw_samples]]
+    assert len(note_frac_list) == notes_per_measure
+    notes = pick_notes(c - 1, n = notes_per_measure )
+    note_dict = [[n,note_frac_list[i]] for i, n in enumerate(notes)]
+    melody = np.array([], dtype=np.float64)
+    for note in note_dict:
+        note_count = note[1][0]
+        
+        sample = note[1][1]
+        note = note[0]
+        notes = list(make_note(note + melody_root, n = 1 / note_count , gen_func=sample )  for i in range(note_count))
+        tmp_melody = np.concatenate(notes)
+        melody = np.concatenate([melody, tmp_melody])
+    #making rythm patterns
+     
 
     bass_note = note_to_key_offset(c - 1)
     bass = make_note(bass_note + bass_root, n=notes_per_measure)
     
     percussion_notes = [i for i in range(16)]
     percussion = np.concatenate(list(make_note(i, n = notes_per_measure / len(percussion_notes), gen_func=noise_sample ) for i in percussion_notes ) ) 
+    #staggering them makes a cool shhh sound
+    oth_percussion_notes = [i for i in range(4)]
+    oth_percussion = np.concatenate(list(make_note(i, n = notes_per_measure / len(oth_percussion_notes), gen_func=noise_sample ) for i in oth_percussion_notes ) ) 
 
+    percussion = percussion[:len(percussion)] + oth_percussion[:len(percussion)]
+    oth_percussion_notes = [i for i in range(8)]
+    oth_percussion = np.concatenate(list(make_note(i, n = notes_per_measure / len(oth_percussion_notes), gen_func=noise_sample ) for i in oth_percussion_notes ) ) 
+
+    percussion = percussion[:len(percussion)] + oth_percussion[:len(percussion)]
     melody_gain = args.balance
     bass_gain = 1 - melody_gain
     percussion_gain =  0.1 
@@ -246,6 +292,10 @@ for c in chord_loop:
         axs[1].plot(melody[:max_plot])
         axs[2].plot(bass[:max_plot])
         plt.show()
+
+    #in order to avoid weirdness with odd bpms we will trim melody and percussion to bass size
+    percussion.resize(bass.shape)
+    melody.resize(bass.shape)
     sound = np.append(sound, (melody_gain * melody) + (bass_gain * bass) + (percussion * percussion_gain))
 
 sound *= 0.1
