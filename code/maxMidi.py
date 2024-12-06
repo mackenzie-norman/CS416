@@ -4,6 +4,7 @@ import numpy as np
 import scipy.io.wavfile as wav
 import matplotlib.pyplot as plt
 
+from wave_tables import Sine_Generator, Square_Generator, Saw_Generator, Sample_Generator
 # Calculate frequency for a 12-tone equal-tempered Western
 # scale given MIDI note number. Change 440 to 432 for better
 # sound </s>.
@@ -153,10 +154,9 @@ class Midi:
         self.out_keys = dict()
         #I am not sure this is needed since we are letting this flow through but, does allow for neat things if we wanted to plot, etc.
         self.NoteClass = Note 
-
-        self.programs = [sine_samples, saw_samples, square_samples,  compose_waves(sine_samples, square_samples), compose_waves(saw_samples, square_samples), compose_waves(sine_samples, saw_samples)]
-        self.programs += [compose_waves(self.programs[-1], self.programs[-2])]
-        self.programs += [noise_sample]
+        self.programs = [Sine_Generator(), Square_Generator(), Saw_Generator(), Sample_Generator("""code\\sounds\\echomorph-hpf.wav""")]
+        #self.programs = [g.get_samples for g in self.generators()]
+        #self.programs += [noise_sample]
         self.prev_osc = sine_samples 
         self.oscillator = sine_samples
 
@@ -239,7 +239,7 @@ class Midi:
     def plot_osc(self): 
         #goal is to show a plot of our waveform
         
-        plt.plot(self.oscillator(sample_times(self.base_freq) ,self.base_freq))
+        plt.plot(self.oscillator(sample_times(10 * self.base_freq) ,self.base_freq))
         plt.show()
     
     def set_oscillator(self, new_osc):
@@ -257,7 +257,7 @@ def sample_times(frame_count):
 
 sample_rate = 48000
 sample_clock = 0
-blocksize = 16
+blocksize = 32
 synth = Midi()
 
 def output_callback(out_data, frame_count, time_info, status):
@@ -288,7 +288,7 @@ def output_callback(out_data, frame_count, time_info, status):
                 continue
             else:
                 #need to find better scaling to stop clipping
-                note_samples *= 0.125
+                note_samples *= 0.25
             samples += note_samples
 
         # Close the deleted keys.

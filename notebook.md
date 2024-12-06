@@ -118,3 +118,6 @@ right now I am using the ratios described [here](https://music.stackexchange.com
 
 ---
 Note: each notes can be broken down into fractional notes so we can represent [1,2,1,1]
+
+
+Note: want to for my project make a cool sample machine, midi thing... 

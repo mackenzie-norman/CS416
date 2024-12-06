@@ -1,6 +1,7 @@
 #MN 
 import numpy as np
 from scipy import io, signal
+import matplotlib.pyplot as plt
 #import sounddevice as sd
 #NOTE trying to decide if these should be classes or just make a compose function. Probably make a compose function
 class Wave_Generator:
@@ -9,8 +10,6 @@ class Wave_Generator:
     def get_samples(self,t,f):
         #this does nothing
         return t 
-    def reset():
-        pass
 class Sine_Generator(Wave_Generator):
     def get_samples(self,t, f):
         return np.sin(2 * np.pi * f * t)
@@ -21,7 +20,6 @@ class Saw_Generator(Wave_Generator):
 class Square_Generator(Wave_Generator):
     def get_samples(self,t, f):
         return np.sign((f * t) % 2.0 - 1.0)
-
 class Sample_Generator(Wave_Generator):
     def __init__(self,wavfile_name) -> None:
         super().__init__()
@@ -52,4 +50,8 @@ class Sample_Generator(Wave_Generator):
     def reset(self):
         self.sample_loc = 0
 
+if __name__ == "__main__":
+    samples = Sample_Generator("code//sine.wav").get_samples(np.linspace(0,1.,440), 440)
+    plt.plot(samples)
+    plt.show()
 

@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import argparse, random, re, wave
 import numpy as np
 import sounddevice as sd
-
+from wave_tables import Sample_Generator
 # 11 canonical note names.
 names = [ "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B", ]
 note_names = { s : i for i, s in enumerate(names) }
@@ -30,7 +30,8 @@ def saw_samples(t, f):
 # given sample times t.
 def square_samples(t, f):
     return np.sign((f * t) % 2.0 - 1.0)
-waves = [sine_samples, saw_samples,square_samples]
+sample_gen = Sample_Generator("code//sounds//gc.wav")
+waves = [sine_samples, saw_samples,square_samples, sample_gen.get_samples]
 #Taken from geeks for geeks https://www.geeksforgeeks.org/how-to-pass-a-list-as-a-command-line-argument-with-argparse/
 def parse_bool(arg):
     if "f" in arg:
@@ -113,7 +114,7 @@ ap.add_argument("--plot", type=parse_bool, default=False)
 #MN add new chord progression
 ap.add_argument("--chord-loop", type=parse_list_of_ints, default="1,5,6,4")
 ap.add_argument("--loop", type= int, default=0)
-ap.add_argument("--samples-notes", type=parse_note_thing, default= "1,0,1,0,1,0,1,0")
+ap.add_argument("--samples-notes", type=parse_note_thing, default= "1,0,1,0,1,0,1,3")
 args = ap.parse_args()
 
 # Tempo in beats per minute.
@@ -202,7 +203,7 @@ def make_note(key, n=1, gen_func = sine_samples):
     envelope = np.concatenate((ramp_up, mid_section, ramp_down))
     #give it an envelope
     wav *= envelope
-
+    sample_gen.reset()
     return wav
 
 # Play the given sound waveform using `sounddevice`.
