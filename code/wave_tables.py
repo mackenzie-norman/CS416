@@ -51,5 +51,3 @@ class Sample_Generator(Wave_Generator):
         return ret_data
     def reset(self):
         self.sample_loc = 0
-
-

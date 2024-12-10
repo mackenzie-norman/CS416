@@ -117,7 +117,66 @@ right now I am using the ratios described [here](https://music.stackexchange.com
 ---
 
 ---
+
+# 11-26-2024
+## Start work on popgen
+Today I just added an envelope. Doing this was pretty easy since the np linspace class makes it easy to generate a smooth ramp up and down and then you can just multiply the corresponding values by that.
+
+What I actually did was make a np array that is [ 0...1,1,1,1...1, 0.99...0 ] and the same length as our sample array
+
+---
+
+---
+
+# 11-26-2024
+## Adding Generators 
+
+Now I had to add generators, I reused the same generators from my synth since I already knew these worked. Since I wanted these to be interchangable, I had to a function param to my `make_note` function.
+
+Doing this also allowed me to add a noise generator to fufill the background noise requirement.
+
+I simply  created a generator that made random noises over the sample t
+this allowed me to re use the same code for making the notes but just passing in this function
+
+---
+
+---
+
+# 11-26-2024
+## Playing with note length, etc.
+
+This is where my lack of formal music knowledge made it hard to know if what I was doing made sense or not. I needed each note in the melody to sum to the length of the bass chord. This meant I had to divide by the number of notes I wanted to play in the melody. But this also forced each note into being equal length which I knew I would have to change later. 
+
+
+---
+
+---
+
+# 12-3-2024
+## Adding Command line args
+
 Note: each notes can be broken down into fractional notes so we can represent [1,2,1,1]
+
+I first added a method to parse a list of arguments, so I could change the deault chord loop.
+
+Next I added a weird list that is not super human readable or good but represents the number of times it a note should be played in the melody and what insturment it should use.
+Note since every note is still allocated a single beat, the length of each note is `beatlength/number_of_times`. 
+
+---
+
+---
+
+# 12-3-2024
+## Re structuring my synth again...
+around this time I restructured my synth since I wanted to add the ability to play samples to it. 
+This worked fairly well but had some (a lot ) of issues. The biggest problem with the sample was reseting the location when a key was let up
+
+Also we had to switch to a memozation approach since otherwise it was too slow.
+
+
+
+
 
 
 Note: want to for my project make a cool sample machine, midi thing... 
+
