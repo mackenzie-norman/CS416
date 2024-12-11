@@ -198,5 +198,6 @@ I finally found this awesome library https://github.com/surikov/webaudiofont whi
 
 I pretty much just crammed in the provided example for playing midi files https://surikov.github.io/webaudiofont/examples/midiplayer.html and then also pass out the json, but by then I felt like this was cool enough to be my individual project and I could sort of abandon my old idea (not because it wasnt working...). 
 
+Here is the url for viewing it. [https://github.com/mackenzie-norman/editor_example/](https://github.com/mackenzie-norman/editor_example/)
 
-
+I think it came out pretty neat and I got learn about VSCode extensions
