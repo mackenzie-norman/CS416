@@ -200,4 +200,4 @@ I pretty much just crammed in the provided example for playing midi files https:
 
 Here is the url for viewing it. [https://github.com/mackenzie-norman/editor_example/](https://github.com/mackenzie-norman/editor_example/)
 
-I think it came out pretty neat and I got learn about VSCode extensions
+I think it came out pretty neat and I got to learn about VSCode extensions.
