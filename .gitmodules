@@ -1,0 +1,6 @@
+[submodule "editor_example"]
+	path = editor_example
+	url = https://github.com/mackenzie-norman/editor_example
+[submodule "CS416_Project"]
+	path = CS416_Project
+	url = https://github.com/mackenzie-norman/CS416_Project

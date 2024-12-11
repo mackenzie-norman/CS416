@@ -171,12 +171,32 @@ Note since every note is still allocated a single beat, the length of each note 
 around this time I restructured my synth since I wanted to add the ability to play samples to it. 
 This worked fairly well but had some (a lot ) of issues. The biggest problem with the sample was reseting the location when a key was let up
 
-Also we had to switch to a memozation approach since otherwise it was too slow.
+Also we had to switch to a memozation approach since otherwise it was too slow. which caused a ton of problems since I then had to reset notes
+
+---
+
+---
+
+# 12-3-2024
+## Finally working on my term project
+I wanted to for my project make a cool sample machine, midi thing that played .mid files could do looping etc. 
 
 
+This was going well until I realized there was no easy way to view the midi files I was generating in my editor of choice (VSCode).
+
+I initially set out to just quickly make a vscode extension to be able to preview them as text (I had never written a vscode extension, but how hard could it be)
+
+I initally tried out just using the webview demo and changing it showing the midi as text (which worked okay). But this had to be instantiated with a command to pop up a new window which was clunky
+
+So then I settled in to a custom editor, which I initially tried using a text editor, but you can only use actual text files within a text editor which is problematic since .mid files arent text but rather binaries.
+
+So I finally settled on the `customDocument` editor which allowed me the flexibility I needed to show the midi. After about 10 hours of work I compilied my extension and installed and thought I would be good to continue on my term project... 
+
+I realized that this wasn't enough so I went back to it, since I wanted a way to hear my midi files in the document. 
+
+I finally found this awesome library https://github.com/surikov/webaudiofont which had support for playing midi files with a variety of insturements and was pretty sweet. 
+
+I pretty much just crammed in the provided example for playing midi files https://surikov.github.io/webaudiofont/examples/midiplayer.html and then also pass out the json, but by then I felt like this was cool enough to be my individual project and I could sort of abandon my old idea (not because it wasnt working...). 
 
 
-
-
-Note: want to for my project make a cool sample machine, midi thing... 
 
